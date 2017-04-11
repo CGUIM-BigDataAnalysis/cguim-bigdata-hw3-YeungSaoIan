@@ -3,67 +3,56 @@ title: "長庚大學 大數據分析方法 作業三"
 output: github_document
 ---
 
-## 作業說明 （繳交時請直接刪除這個章節）
-
-作業目的：練習初級爬蟲，並將爬蟲結果整理成資料框data.frame
-
-依下列指示，完成網站內文分析：
-
-- 爬取指定網站內容
-    - 學號結尾 0,4,8:[Ptt Tech_Job 版](https://www.ptt.cc/bbs/Tech_Job/index.html)
-    - 學號結尾 1,5,9:[Ptt NBA 版](https://www.ptt.cc/bbs/NBA/index.html)
-    - 學號結尾 2,6:[Ptt LoL 版](https://www.ptt.cc/bbs/LoL/index.html)
-    - 學號結尾 3,7:[Ptt movie 版](https://www.ptt.cc/bbs/movie/index.html)
-    
-- 試著爬出**至少100篇**文章（`30pt`）的**標題**、**推文數**與**作者ID**（各`10pt`）
-    - 資料框欄位名稱：
-        - **標題**：Title
-        - **推文數**：PushNum
-        - **作者ID**：Author
-    - 一頁只有20篇，該怎麼辦？
-        - 提示：使用for + rbind()將分批爬取出的資料結合
-        - 範例：dataframeAll<-rbind(dataframe1,dataframe2) 
-        - 參考：[6.6 資料組合](http://yijutseng.github.io/DataScienceRBook/manipulation.html#section-6.6)
-    
-- 將爬取出的資料輸出至Markdown報告中（`10pt`）
-    - 使用knitr::kable(資料框物件)整理輸出
-    
-- 用文字搭配程式碼解釋爬蟲結果 
-    - 共爬出幾篇文章標題？（程式碼與文字解釋各`5pt`）
-        - dim(), nrow(), str()皆可
-    - 哪個作者文章數最多？（程式碼與文字解釋各`5pt`）
-        - table()
-    - 其他爬蟲結果解釋（`10pt`）
-        - 試著找出有趣的現象，不一定要用程式碼搭配解釋，也可只用文字
-
-    
-
 ## 網站資料爬取
 ```{r}
 #這是R Code Chunk
 library(rvest) ##第一次使用要先安裝 install.packages("rvest")
+library(xml2)
+library(XML)
 ##read_html
+a<-"https://www.ptt.cc/bbs/LoL/index.html"
+b<-"https://www.ptt.cc/bbs/LoL/index7183.html"
+c<-"https://www.ptt.cc/bbs/LoL/index7182.html"
+d<-"https://www.ptt.cc/bbs/LoL/index7181.html"
+e<-"https://www.ptt.cc/bbs/LoL/index7180.html"
+f<-"https://www.ptt.cc/bbs/LoL/index7179.html"
+
+vec<-c(a,b,c,d,e,f)
+result<-NULL
+for(i in vec)
+{
+##PTTLOL<-"https://www.ptt.cc/bbs/LoL/index.html"
+LOLContent<-read_html(i)
 ##html_nodes
 ##html_text
+post_title <- LOLContent %>% html_nodes(".title") %>% html_text()
+push_num <- LOLContent %>% html_nodes(".nrec") %>% html_text()
+post_author <- LOLContent %>% html_nodes(".author") %>% html_text()
+
+testpost_output <- data.frame(testtitle = post_title, testpushnum = push_num, testauthor = post_author)
+result<-rbind(result,testpost_output)
+next
+}
+LOL_posts<-result
 ```
 
 ## 爬蟲結果呈現
 ```{r}
 #這是R Code Chunk
-knitr::kable(iris) ##請將iris取代為上個步驟中產生的爬蟲資料資料框
+knitr::kable(
+    LOL_posts[1:100,c("testtitle","testpushnum","testauthor")]) ##請將iris取代為上個步驟中產生的爬蟲資料資料框
 ```
 
 ## 解釋爬蟲結果 
 ```{r}
-#這是R Code Chunk
+#Post的類型排名是：
+#實況 22個
+#問題 17個
+
+#最多推文數的文章是
+"[外絮] FW FB" #共62個
+#另外有一個推文數很高的文章，但是被刪除了
+
+#最活躍的作者是fdfdfdfd51，共發了4篇文章
 ```
 
-解釋解釋解釋解釋
-
-```{r}
-#這是R Code Chunk
-```
-
-解釋解釋解釋解釋
-
-人工結論與解釋解釋解釋解釋解釋解釋解釋
